@@ -1,0 +1,12 @@
+server.port: 8081
+spring:
+    datasource:
+        url: jdbc:h2:mem:testdb
+        driverClassName: org.h2.Driver
+        username: sa
+        password: password
+    jpa.database-platform: org.hibernate.dialect.H2Dialect
+camunda:
+    baseUrl: http://localhost:8080/engine-rest/
+    userProcessDefinitionId: dp:1:d2d9e89d-ae89-11ea-9b43-ce19214c1d24
+    userIdVariable: userId
