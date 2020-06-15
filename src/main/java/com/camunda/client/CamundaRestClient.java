@@ -2,10 +2,8 @@ package com.camunda.client;
 
 import com.camunda.client.response.CreateProcessResponse;
 import com.camunda.configuration.properties.CamundaProperties;
-import com.camunda.exception.BadRequestException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -26,38 +24,47 @@ public class CamundaRestClient {
 
     public ResponseEntity<CreateProcessResponse> createProcessInstance(String processDefinitionId,
                                                                        Map<String, String> variables) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         String fullUrl = camundaProperties.getBaseUrl()
                 + String.format("/process-definition/%s/start", processDefinitionId);
-
-        HttpEntity<String> entity = new HttpEntity<String>(createRequestBody(variables), headers);
-
+        HttpEntity<String> entity = new HttpEntity<String>(createRequestBody(variables), getHttpHeaders());
         return restTemplate.postForEntity(fullUrl, entity, CreateProcessResponse.class);
     }
 
     private String createRequestBody(Map<String, String> variables) {
         StringBuilder json = new StringBuilder();
-        json.append("{\"variables\":");
-        variables.keySet().forEach(key -> {
-            json.append(String.format("{\"%s\": {\"value\": \"%s\"}}", key, variables.get(key)));
-        });
-        json.append("}");
+        if (variables != null) {
+            json.append("{\"variables\": {");
+            variables.keySet().forEach(key -> {
+                json.append(String.format("\"%s\": {\"value\": \"%s\"}", key, variables.get(key)));
+                json.append(",");
+            });
+            json.deleteCharAt(json.length() - 1);
+            json.append("}}");
+        }
         return json.toString();
     }
 
-    public CreateProcessResponse completeTask(Long idTask) {
+    public ResponseEntity<Object> completeTask(String idTask, Map<String, String> variables) {
+        String fullUrl = camundaProperties.getBaseUrl() + String.format("task/%s/complete", idTask);
+        HttpEntity<String> entity = new HttpEntity<String>(createRequestBody(variables), getHttpHeaders());
+        return restTemplate.postForEntity(fullUrl, entity, Object.class);
+    }
+
+    private HttpHeaders getHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String fullUrl = camundaProperties.getBaseUrl() + String.format("task/%s/complete", idTask);
+        return headers;
+    }
 
-        ResponseEntity<CreateProcessResponse> result =
-                restTemplate.postForEntity(fullUrl, "", CreateProcessResponse.class);
+    public ResponseEntity<Object[]> getProcessInstance(Long userId) {
+        String fullUrl = camundaProperties.getBaseUrl()
+                + String.format("history/process-instance?variables=userId_eq_%d", userId);
+        return restTemplate.getForEntity(fullUrl, Object[].class);
+    }
 
-        if (!result.getStatusCode().equals(HttpStatus.OK)) {
-            throw new BadRequestException("Could not complete task: "); //FIXME
-        }
-
-        return result.getBody();
+    public ResponseEntity<Object[]> getTaskInstance(String processInstanceId) {
+        String fullUrl = camundaProperties.getBaseUrl()
+                + String.format("task?processInstanceId=%s", processInstanceId);
+        return restTemplate.getForEntity(fullUrl, Object[].class);
     }
 }

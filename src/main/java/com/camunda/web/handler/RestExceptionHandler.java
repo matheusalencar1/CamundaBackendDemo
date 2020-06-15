@@ -24,7 +24,7 @@ public class RestExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity handleUnexpectedException(final RuntimeException e) {
         final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-
+        log.info(e.getMessage());
         final ErrorResponse error = new ErrorResponse(String.valueOf(status.value()), e.getMessage());
         return new ResponseEntity<>(restResponseBuilder.fail(error), status);
     }

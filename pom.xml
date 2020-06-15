@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.camunda</groupId>
-	<artifactId>camunda-demo</artifactId>
+	<artifactId>camunda-backend-demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>camunda-demo</name>
+	<name>camunda-backend-demo</name>
 	<description>Demo project for Camunda integration</description>
 
 	<properties>

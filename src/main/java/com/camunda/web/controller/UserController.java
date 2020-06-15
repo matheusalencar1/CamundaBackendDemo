@@ -71,8 +71,18 @@ public class UserController {
 
     @PutMapping
     public RestResponse<UserRepresentation> updateUser(@RequestBody UserRepresentation user) {
-        User updatedUser = this.saveUser(user);
+        User updatedUser = update(user);
         return createUserResponse(updatedUser);
+    }
+
+    private User update(UserRepresentation user) {
+        return userService.update(modelMapper.map(user, User.class));
+    }
+
+    @PutMapping(value = "reject/{userId}")
+    public RestResponse<UserRepresentation> rejectUser(@PathVariable Long userId) {
+        userService.reject(userId);
+        return restResponseBuilder.success(null);
     }
 
     private RestResponse<UserRepresentation> createUserResponse(User user) {

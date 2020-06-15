@@ -35,6 +35,18 @@ public class UserService {
         return savedUser;
     }
 
+    public User update(User user) {
+        User savedUser = userRepository.save(user);
+        completeEditTask(savedUser.getId());
+        log.info(savedUser.toString());
+        return savedUser;
+    }
+
+    private void completeEditTask(Long idUser) {
+        String taskId = camundaService.getTaskInstanceId(idUser);
+        camundaService.completeTask(taskId, null);
+    }
+
     private void createUserProcess(User savedUser) {
         Map<String, String> variables = new HashMap<>();
         variables.put(camundaProperties.getUserIdVariable(), String.valueOf(savedUser.getId()));
@@ -43,13 +55,32 @@ public class UserService {
         log.info(processInstance.toString());
     }
 
+
     public boolean delete(Long id) {
         Optional<User> userToBeDeleted = userRepository.findById(id);
         boolean delete = userToBeDeleted.isPresent();
         if (delete) {
-            userRepository.delete(userToBeDeleted.get());
+            User user = userToBeDeleted.get();
+            userRepository.delete(user);
+            completeReviewTask(user.getId(), Boolean.TRUE);
         }
         return delete;
+    }
+
+    public void reject(Long id) {
+        Optional<User> userToBeRejected = userRepository.findById(id);
+        boolean reject = userToBeRejected.isPresent();
+        if (reject) {
+            completeReviewTask(id, Boolean.FALSE);
+        }
+    }
+
+    private void completeReviewTask(Long idUser, Boolean isApproved) {
+        String taskId = camundaService.getTaskInstanceId(idUser);
+        Map<String, String> variables = new HashMap<>();
+        variables.put("approved", isApproved.toString());
+        variables.put(camundaProperties.getUserIdVariable(), String.valueOf(idUser));
+        camundaService.completeTask(taskId, variables);
     }
 
     public Optional<User> findById(Long id) {
