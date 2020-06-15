@@ -2,7 +2,7 @@ package com.camunda.web.controller;
 
 import com.camunda.exception.BadRequestException;
 import com.camunda.model.entity.User;
-import com.camunda.model.representation.UserRepresentation;
+import com.camunda.web.representation.UserRepresentation;
 import com.camunda.model.service.UserService;
 import com.camunda.web.response.ListRestResponse;
 import com.camunda.web.response.RestResponse;
@@ -92,7 +92,7 @@ public class UserController {
     @DeleteMapping(value = "{id}")
     public RestResponse<UserRepresentation> deleteUser(@PathVariable Long id) {
         if (!userService.delete(id)) {
-            throw new BadRequestException("User can't be deleted");
+            throw new BadRequestException(String.format("User %d can't be deleted", id));
         }
         return restResponseBuilder.success(null);
     }

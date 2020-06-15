@@ -12,12 +12,12 @@ import javax.persistence.SequenceGenerator;
 @Data
 @Entity
 @ToString
-@SequenceGenerator(name="seq", initialValue=26, allocationSize=1)
+@SequenceGenerator(name="seq", initialValue=60, allocationSize=1)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="seq")
     private Long id;
-    private String login;
+    private String name;
 
 }

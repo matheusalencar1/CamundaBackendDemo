@@ -37,16 +37,20 @@ public class CamundaService {
 
     public String getProcessInstanceId(Long userId) {
         ResponseEntity<Object[]> processInstance = camundaRestClient.getProcessInstance(userId);
-        if (!processInstance.getStatusCode().equals(HttpStatus.OK) || processInstance.getBody().length == 0) {
+        if (!validateObjectResponseEntity(processInstance)) {
             throw new BadRequestException("Could not get any process from user " + userId);
         }
         Map processInstanceMap = (Map) processInstance.getBody()[0];
         return (String) processInstanceMap.get("id");
     }
 
+    public boolean validateObjectResponseEntity(ResponseEntity<Object[]> responseEntity) {
+        return responseEntity.getStatusCode().equals(HttpStatus.OK) && responseEntity.getBody().length != 0;
+    }
+
     public String getTaskInstanceId(String processInstanceId) {
         ResponseEntity<Object[]> taskInstance = camundaRestClient.getTaskInstance(processInstanceId);
-        if (!taskInstance.getStatusCode().equals(HttpStatus.OK)) {
+        if (!validateObjectResponseEntity(taskInstance)) {
             throw new BadRequestException("Could not get task of process id " + processInstanceId);
         }
         Map processInstanceMap = (Map) taskInstance.getBody()[0];

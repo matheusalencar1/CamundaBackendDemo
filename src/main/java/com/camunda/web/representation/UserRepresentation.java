@@ -1,4 +1,4 @@
-package com.camunda.model.representation;
+package com.camunda.web.representation;
 
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
@@ -7,5 +7,5 @@ import org.springframework.hateoas.RepresentationModel;
 public class UserRepresentation extends RepresentationModel {
 
     private Long id;
-    private String login;
+    private String name;
 }
